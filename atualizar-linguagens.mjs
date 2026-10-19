@@ -1,5 +1,5 @@
 
-import { writeFile } from "node:fs/promises";
+import { readFile, writeFile, rename } from "node:fs/promises";
 
 const USUARIO = "Viana-vv";
 const TOKEN = process.env.GITHUB_TOKEN;
@@ -8,36 +8,76 @@ const EXTENSOES = {
   ".js": ["JavaScript", "#f1e05a"],
   ".jsx": ["JavaScript", "#f1e05a"],
   ".mjs": ["JavaScript", "#f1e05a"],
+  ".cjs": ["JavaScript", "#f1e05a"],
+
   ".ts": ["TypeScript", "#3178c6"],
   ".tsx": ["TypeScript", "#3178c6"],
+  ".mts": ["TypeScript", "#3178c6"],
+  ".cts": ["TypeScript", "#3178c6"],
+
   ".php": ["PHP", "#4F5D95"],
   ".py": ["Python", "#3572A5"],
   ".html": ["HTML", "#e34c26"],
+  ".htm": ["HTML", "#e34c26"],
   ".css": ["CSS", "#563d7c"],
   ".scss": ["SCSS", "#c6538c"],
+  ".sass": ["SCSS", "#c6538c"],
   ".sql": ["SQL", "#e38c00"],
   ".java": ["Java", "#b07219"],
   ".dart": ["Dart", "#00B4AB"],
   ".go": ["Go", "#00ADD8"],
   ".rs": ["Rust", "#dea584"],
   ".c": ["C", "#555555"],
+  ".h": ["C", "#555555"],
   ".cpp": ["C++", "#f34b7d"],
+  ".cc": ["C++", "#f34b7d"],
+  ".hpp": ["C++", "#f34b7d"],
   ".cs": ["C#", "#178600"],
   ".rb": ["Ruby", "#701516"],
   ".vue": ["Vue", "#41b883"],
   ".kt": ["Kotlin", "#A97BFF"],
+  ".kts": ["Kotlin", "#A97BFF"],
   ".swift": ["Swift", "#F05138"],
   ".sh": ["Shell", "#89e051"],
-  ".json": ["JSON", "#292929"],
-  ".xml": ["XML", "#0060ac"],
-  ".yml": ["YAML", "#cb171e"],
-  ".yaml": ["YAML", "#cb171e"]
+  ".bash": ["Shell", "#89e051"],
+  ".zsh": ["Shell", "#89e051"]
 };
 
+// Pastas que não representam código-fonte do projeto.
 const PASTAS_IGNORADAS = new Set([
-  "node_modules", "vendor", "dist", "build",
-  ".git", "coverage", ".venv", "venv",
-  "target", "bin", "obj"
+  "node_modules",
+  "vendor",
+  "dist",
+  "build",
+  ".git",
+  "coverage",
+  ".venv",
+  "venv",
+  "env",
+  "__pycache__",
+  ".pytest_cache",
+  ".mypy_cache",
+  "target",
+  "bin",
+  "obj",
+  "out",
+  ".next",
+  ".nuxt",
+  ".output",
+  "generated",
+  "vendor_modules"
+]);
+
+// Arquivos gerados, minificados ou usados apenas como dependências.
+const ARQUIVOS_IGNORADOS = new Set([
+  "package-lock.json",
+  "yarn.lock",
+  "pnpm-lock.yaml",
+  "composer.lock",
+  "poetry.lock",
+  "pipfile.lock",
+  "bun.lock",
+  "bun.lockb"
 ]);
 
 async function buscarJSON(url) {
@@ -53,7 +93,9 @@ async function buscarJSON(url) {
   const resposta = await fetch(url, { headers });
 
   if (!resposta.ok) {
-    throw new Error(`GitHub API: HTTP ${resposta.status} em ${url}`);
+    throw new Error(
+      `GitHub API: HTTP ${resposta.status} em ${url}`
+    );
   }
 
   return resposta.json();
@@ -86,6 +128,32 @@ function escaparXML(texto) {
   })[caractere]);
 }
 
+function arquivoIgnorado(caminho) {
+  const partes = caminho.split("/");
+  const nome = partes.at(-1);
+  const nomeMinusculo = nome.toLowerCase();
+
+  if (partes.some(parte => PASTAS_IGNORADAS.has(parte))) {
+    return true;
+  }
+
+  if (ARQUIVOS_IGNORADOS.has(nomeMinusculo)) {
+    return true;
+  }
+
+  // Evita arquivos JavaScript/CSS minificados.
+  if (/\.(min)\.(js|css)$/i.test(nome)) {
+    return true;
+  }
+
+  // Ignora arquivos de declarações TypeScript gerados.
+  if (/\.d\.ts$/i.test(nome)) {
+    return true;
+  }
+
+  return false;
+}
+
 async function calcularLinguagens() {
   const repositorios = await listarRepositorios();
   const totais = {};
@@ -105,21 +173,18 @@ async function calcularLinguagens() {
     const arvore = await buscarJSON(url);
 
     if (arvore.truncated || !Array.isArray(arvore.tree)) {
-      throw new Error(`Árvore incompleta: ${repo.name}.`);
+      throw new Error(
+        `Árvore incompleta: ${repo.name}. Card anterior preservado.`
+      );
     }
 
     analisados++;
 
     for (const arquivo of arvore.tree) {
       if (arquivo.type !== "blob") continue;
+      if (arquivoIgnorado(arquivo.path)) continue;
 
-      const partes = arquivo.path.split("/");
-
-      if (partes.some(parte => PASTAS_IGNORADAS.has(parte))) {
-        continue;
-      }
-
-      const nome = partes.at(-1);
+      const nome = arquivo.path.split("/").at(-1);
       const ponto = nome.lastIndexOf(".");
 
       if (ponto < 0) continue;
@@ -127,6 +192,7 @@ async function calcularLinguagens() {
       const extensao = nome.slice(ponto).toLowerCase();
       const definicao = EXTENSOES[extensao];
 
+      // Extensões como JSON, XML e YAML não entram na conta.
       if (!definicao) continue;
 
       const [linguagem] = definicao;
@@ -139,15 +205,18 @@ async function calcularLinguagens() {
     .reduce((soma, bytes) => soma + bytes, 0);
 
   if (analisados === 0 || totalBytes === 0) {
-    throw new Error("Nenhum resultado válido. SVG anterior preservado.");
+    throw new Error(
+      "Nenhum resultado válido. SVG anterior preservado."
+    );
   }
 
   const linguagens = Object.entries(totais)
     .map(([nome, bytes]) => ({
       nome,
       bytes,
-      percentual: bytes / totalBytes * 100,
-      cor: Object.values(EXTENSOES).find(item => item[0] === nome)[1]
+      percentual: (bytes / totalBytes) * 100,
+      cor: Object.values(EXTENSOES)
+        .find(item => item[0] === nome)[1]
     }))
     .sort((a, b) => b.bytes - a.bytes);
 
@@ -157,7 +226,9 @@ async function calcularLinguagens() {
 function gerarSVG(dados) {
   const largura = 800;
   const altura = 100 + dados.linguagens.length * 38;
-  const atualizado = new Date().toISOString().slice(0, 16).replace("T", " ") + " UTC";
+  const atualizado =
+    new Date().toISOString().slice(0, 16).replace("T", " ") +
+    " UTC";
 
   const linhas = dados.linguagens.map((item, indice) => {
     const y = 100 + indice * 38;
@@ -182,28 +253,30 @@ function gerarSVG(dados) {
 }
 
 async function main() {
-  const svgAnterior = await (async () => {
-    try {
-      const fs = await import("node:fs/promises");
-      return await fs.readFile("languages.svg", "utf8");
-    } catch {
-      return null;
-    }
-  })();
+  let svgAnterior = null;
+
+  try {
+    svgAnterior = await readFile("languages.svg", "utf8");
+  } catch {
+    // O card ainda pode não existir na primeira execução.
+  }
 
   try {
     const dados = await calcularLinguagens();
     const svg = gerarSVG(dados);
 
     await writeFile("languages.svg.tmp", svg, "utf8");
-    const fs = await import("node:fs/promises");
-    await fs.rename("languages.svg.tmp", "languages.svg");
+    await rename("languages.svg.tmp", "languages.svg");
 
     console.log("Card atualizado com sucesso.");
-    console.table(dados.linguagens.map(({ nome, percentual }) => ({
-      linguagem: nome,
-      percentual: `${percentual.toFixed(2)}%`
-    })));
+
+    console.table(
+      dados.linguagens.map(({ nome, percentual, bytes }) => ({
+        linguagem: nome,
+        percentual: `${percentual.toFixed(2)}%`,
+        bytes
+      }))
+    );
   } catch (erro) {
     console.error("Falha ao atualizar o card:", erro.message);
 
