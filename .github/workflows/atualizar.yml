@@ -21,12 +21,18 @@ jobs:
       - name: Baixar o verificador
         uses: actions/checkout@v5
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Configurar Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22"
+
+      - name: Sincronizar repositorio
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
 
       - name: Gerar card
         run: node atualizar-linguagens.mjs
@@ -47,5 +53,8 @@ jobs:
 
           git commit -m "Atualiza card de linguagens"
 
-          git pull --rebase origin main
-          git push origin main
+          git fetch origin main
+
+          git rebase origin/main
+
+          git push origin HEAD:main
