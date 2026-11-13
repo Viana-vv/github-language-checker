@@ -1,41 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="800" height="366" viewBox="0 0 800 366">
     <rect width="100%" height="100%" rx="12" fill="#0d1117" stroke="#30363d"/>
     <text x="28" y="34" fill="#e6edf3" font-size="21" font-weight="bold">Minhas linguagens</text>
-    <text x="28" y="59" fill="#8b949e" font-size="12">20 repositórios analisados · Atualizado: 2026-11-12 15:59 UTC</text>
+    <text x="28" y="59" fill="#8b949e" font-size="12">20 repositórios analisados · Atualizado: 2026-11-13 15:25 UTC</text>
     
       <text x="28" y="100" fill="#e6edf3" font-size="15">Python</text>
       <rect x="180" y="86" width="350" height="12" rx="6" fill="#30363d"/>
-      <rect x="180" y="86" width="177.32" height="12" rx="6" fill="#3572A5"/>
-      <text x="550" y="100" fill="#e6edf3" font-size="14">50.66%</text>
+      <rect x="180" y="86" width="182.43" height="12" rx="6" fill="#3572A5"/>
+      <text x="550" y="100" fill="#e6edf3" font-size="14">52.12%</text>
     
       <text x="28" y="138" fill="#e6edf3" font-size="15">CSS</text>
       <rect x="180" y="124" width="350" height="12" rx="6" fill="#30363d"/>
-      <rect x="180" y="124" width="48.89" height="12" rx="6" fill="#563d7c"/>
-      <text x="550" y="138" fill="#e6edf3" font-size="14">13.97%</text>
+      <rect x="180" y="124" width="47.19" height="12" rx="6" fill="#563d7c"/>
+      <text x="550" y="138" fill="#e6edf3" font-size="14">13.48%</text>
     
       <text x="28" y="176" fill="#e6edf3" font-size="15">HTML</text>
       <rect x="180" y="162" width="350" height="12" rx="6" fill="#30363d"/>
-      <rect x="180" y="162" width="38.55" height="12" rx="6" fill="#e34c26"/>
-      <text x="550" y="176" fill="#e6edf3" font-size="14">11.01%</text>
+      <rect x="180" y="162" width="37.21" height="12" rx="6" fill="#e34c26"/>
+      <text x="550" y="176" fill="#e6edf3" font-size="14">10.63%</text>
     
       <text x="28" y="214" fill="#e6edf3" font-size="15">PHP</text>
       <rect x="180" y="200" width="350" height="12" rx="6" fill="#30363d"/>
-      <rect x="180" y="200" width="36.10" height="12" rx="6" fill="#4F5D95"/>
-      <text x="550" y="214" fill="#e6edf3" font-size="14">10.31%</text>
+      <rect x="180" y="200" width="34.85" height="12" rx="6" fill="#4F5D95"/>
+      <text x="550" y="214" fill="#e6edf3" font-size="14">9.96%</text>
     
       <text x="28" y="252" fill="#e6edf3" font-size="15">JavaScript</text>
       <rect x="180" y="238" width="350" height="12" rx="6" fill="#30363d"/>
-      <rect x="180" y="238" width="23.42" height="12" rx="6" fill="#f1e05a"/>
-      <text x="550" y="252" fill="#e6edf3" font-size="14">6.69%</text>
+      <rect x="180" y="238" width="23.50" height="12" rx="6" fill="#f1e05a"/>
+      <text x="550" y="252" fill="#e6edf3" font-size="14">6.72%</text>
     
       <text x="28" y="290" fill="#e6edf3" font-size="15">TypeScript</text>
       <rect x="180" y="276" width="350" height="12" rx="6" fill="#30363d"/>
-      <rect x="180" y="276" width="17.27" height="12" rx="6" fill="#3178c6"/>
-      <text x="550" y="290" fill="#e6edf3" font-size="14">4.93%</text>
+      <rect x="180" y="276" width="16.67" height="12" rx="6" fill="#3178c6"/>
+      <text x="550" y="290" fill="#e6edf3" font-size="14">4.76%</text>
     
       <text x="28" y="328" fill="#e6edf3" font-size="15">Java</text>
       <rect x="180" y="314" width="350" height="12" rx="6" fill="#30363d"/>
-      <rect x="180" y="314" width="8.45" height="12" rx="6" fill="#b07219"/>
-      <text x="550" y="328" fill="#e6edf3" font-size="14">2.41%</text>
+      <rect x="180" y="314" width="8.16" height="12" rx="6" fill="#b07219"/>
+      <text x="550" y="328" fill="#e6edf3" font-size="14">2.33%</text>
     
   </svg>
